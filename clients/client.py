@@ -40,7 +40,7 @@ if __name__ == '__main__':
         if num not in (1, 2):
             raise ValueError
     except ValueError:
-        print('Invalid player number\n')
+        print('Invalid player number, only 1 and 2 are allowed\n')
         exit(1)
 
     # Parse SERVER_IP as IP address
