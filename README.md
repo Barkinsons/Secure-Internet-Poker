@@ -46,3 +46,7 @@ Examples
 python3 client.py 1 RSA 127.0.0.1 1234
 python3 client.py 2 DSA localhost 1234
 ```
+
+## How to play
+
+In this poker game each player is given 3 random cards. For three rounds players will choose a card from their hand. The player with the higher card wins the round. The player with the most wins at the third round wins, or else it is a draw
