@@ -66,4 +66,6 @@ After key exchange between the client and server, the 128-bit session key is use
 
 ## Closing remarks
 
+*Note* that ANSI escape sequences are used for changing the color of terminal output. If your terminal does not support this the output will look a little weird, but should still be readable.  
+  
 I hope you enjoyed my Secure Internet Poker Game! PLEASE, if possible give feedback via pull request comments, it would mean a lot to me!
