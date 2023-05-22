@@ -1,8 +1,36 @@
+##########################################################################
+# mydigitalsignature.py - Dynamic generation and verification of ds's    #
+# Copyright (C) 2023 Jared Sevilla                                       #
+#                                                                        #
+# This program is free software: you can redistribute it and/or modify   #
+# it under the terms of the GNU General Public License as published by   #
+# the Free Software Foundation, either version 3 of the License, or      #
+# (at your option) any later version.                                    #
+#                                                                        #
+# This program is distributed in the hope that it will be useful,        #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of         #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          #
+# GNU General Public License for more details.                           #
+#                                                                        #
+# You should have received a copy of the GNU General Public License      #
+# along with this program.  If not, see <https://www.gnu.org/licenses/>. #
+##########################################################################
+
 from Cryptodome.Signature import pkcs1_15, DSS
 from Cryptodome.PublicKey import RSA, DSA
 from Cryptodome.Hash import SHA1
 
 class DigitalSignature:
+    '''
+    A class to hold digital signature generation and verification functions
+    
+    Methods -
+        generate_digital_signature(msg_hash, key):
+            Generates the digital signature for some hash given asymmetric key
+
+        verify_digital_signature(msg_hash, signature, key)
+            Verifies the digital signature given hash and asymmetric key
+    '''
 
     def generate_digital_signature(msg_hash: SHA1.SHA1Hash, key: RSA.RsaKey | DSA.DsaKey):
         '''
@@ -34,8 +62,6 @@ class DigitalSignature:
         else:
             raise TypeError(f'key type not supported: ({type(key)})')
 
-
-        
     def verify_digital_signature(msg_hash: SHA1.SHA1Hash, signature: bytes, key: RSA.RsaKey | DSA.DsaKey):
         '''
         Verifies the digital signature given hash and asymmetric key
@@ -51,6 +77,7 @@ class DigitalSignature:
             TypeError: key type not supported
             ValueError: could not verify the digital signature
         '''
+
         # Given RSAkey
         if type(key) == RSA.RsaKey:
             pkcs1_15.new(key).verify(msg_hash, signature)
