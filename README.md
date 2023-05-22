@@ -29,8 +29,7 @@ python3 server.py localhost 0
 ```
 
 ## How to run client
-To the client you must first navigate to ```.\Secure-Internet-Poker\clients``` before running the server program.  
-From the home directory run ```cd .\clients```  
+To the client you must first navigate to ```.\Secure-Internet-Poker\clients```. From the home directory run ```cd .\clients```. *Note* that the client program will need to be run on different terminals, seperate from each other and the server.  
 
 The format for running the server is as follows:  
 ```
