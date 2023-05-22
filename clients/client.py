@@ -1,3 +1,21 @@
+##########################################################################
+# client.py - Client program for Secure Internet Poker Game              #
+# Copyright (C) 2023 Jared Sevilla                                       #
+#                                                                        #
+# This program is free software: you can redistribute it and/or modify   #
+# it under the terms of the GNU General Public License as published by   #
+# the Free Software Foundation, either version 3 of the License, or      #
+# (at your option) any later version.                                    #
+#                                                                        #
+# This program is distributed in the hope that it will be useful,        #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of         #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          #
+# GNU General Public License for more details.                           #
+#                                                                        #
+# You should have received a copy of the GNU General Public License      #
+# along with this program.  If not, see <https://www.gnu.org/licenses/>. #
+##########################################################################
+
 from Cryptodome.PublicKey import RSA, DSA
 from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.Hash import SHA1
@@ -14,6 +32,12 @@ from mydigitalsignature import DigitalSignature as DS
 from message import Message as M
 
 class bcolors:
+    '''
+    Class for holding ANSI escape sequences
+    
+    taken from https://stackoverflow.com/questions/287871/how-do-i-print-colored-text-to-the-terminal
+    '''
+
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKCYAN = '\033[96m'
@@ -30,13 +54,13 @@ class Client:
 
     Attributes -
         General -
-            self.player_num (int): the identity of the player (1 or 2)
-            self.hash (str): name of the hash used for digital signing (RSA or DSA)
+            player_num (int): the identity of the player (1 or 2)
+            hash (str): name of the hash used for digital signing (RSA or DSA)
             
         Game -
-            self.score (int): the current score of the client
-            self.hand (tuple): the current hand
-            self.card (int): the current chosen card
+            score (int): the current score of the client
+            hand (tuple): the current hand
+            card (int): the current chosen card
 
         Server - 
             server_socket (socket.socket): the TCP socket used for communication with server
@@ -47,9 +71,9 @@ class Client:
             session_key (bytes): the 16-byte session key used for secure communication with server
 
         Public Key Cryptography -
-            self.private_key (Rsa.Key | Dsa,key): the private key used for digital signing
-            self.server_key (Rsa.Key): the public key used for digital signature verification
-            self.rsa_cipher_server (PKCS1_OAEP.PKCS1OAEP_Cipher): the cipher used for assymmetric encryption
+            private_key (Rsa.Key | Dsa,key): the private key used for digital signing
+            server_key (Rsa.Key): the public key used for digital signature verification
+            rsa_cipher_server (PKCS1_OAEP.PKCS1OAEP_Cipher): the cipher used for assymmetric encryption
 
     Methods -
         start_game():
@@ -58,11 +82,11 @@ class Client:
         send_hello():
             Send hello message to server
 
-        close_client(message):
-            Close the client
-
         get_cards_and_result():
             Get and validate cards and result from server
+
+        close_client(message):
+            Close the client and exit program
     '''
 
     def __init__(self, player_num: int, hash: str, server_ip: str, server_port: int) -> None:
@@ -209,6 +233,8 @@ class Client:
 
         #== LOOP ENDS HERE =================================================================================
 
+        print(f'{bcolors.BOLD}================================================={bcolors.ENDC}\n')
+
         ### PRINT FINAL RESULT #############################################################################
         if self.score == 0:
             print(f'{bcolors.OKCYAN}{bcolors.BOLD}{bcolors.UNDERLINE}THE GAME WAS A TIE!{bcolors.ENDC}\n')
@@ -218,7 +244,7 @@ class Client:
             print(f'{bcolors.FAIL}{bcolors.BOLD}{bcolors.UNDERLINE}You lost the game...{bcolors.ENDC}\n')
 
         ### END THE GAME ###################################################################################
-        self.close_client(f'Have A Nice Day!!!')
+        self.close_client(f'{bcolors.BOLD}Have A Nice Day!!!{bcolors.ENDC}')
 
     def send_hello(self) -> None:
         '''
@@ -247,15 +273,6 @@ class Client:
 
         except ConnectionError:
             self.close_client(f'{bcolors.WARNING}Error: Could not send data!!!{bcolors.ENDC}')
-
-    def close_client(self, message):
-        '''Close the client'''
-        # print closing message
-        print(f'{message}\n\nClosing client . . .\n\n\n\n')
-
-        # close socket and exit
-        self.server_socket.close()
-        exit(1)
 
     def get_cards_and_result(self) -> tuple[3]:
         '''
@@ -293,6 +310,21 @@ class Client:
 
         # Return cards and result
         return player_card, opponent_card, result
+
+    def close_client(self, message: str) -> None:
+        '''
+        Close the client and exit program
+        
+        Parameters -
+            message(str): the message to print before program exit
+        '''
+
+        # print closing message
+        print(f'{message}\n\nClosing client . . .\n\n\n\n')
+
+        # close socket and exit
+        self.server_socket.close()
+        exit(1)
 
  
 if __name__ == '__main__':
