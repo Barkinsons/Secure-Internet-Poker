@@ -29,7 +29,7 @@ python3 server.py localhost 0
 ```
 
 ## How to run client
-To the client you must first navigate to ```.\Secure-Internet-Poker\clients```. From the home directory run ```cd .\clients```. *Note* that the client program will need to be run on different terminals, seperate from each other and the server.  
+To run the client you must first navigate to ```.\Secure-Internet-Poker\clients```. From the home directory run ```cd .\clients```. *Note* that the client program will need to be run on different terminals, seperate from each other and the server.  
 
 The format for running the server is as follows:  
 ```
@@ -62,7 +62,7 @@ The **Server** uses 2048-bit RSA keys to provide digital signature. Digital Sign
 
 ### Symmetric Cryptography
 
-After key exchange between the client and server, the 128-bit session key is used to both encrypt and decrypt messages on both sides. Before The chosen cipher for encryption/decryption is AES with GCM block cipher mode. See ```message.py``` for specific details on how messages are formulated and encrypted/decryped.
+After key exchange between the client and server, the 128-bit session key is used to both encrypt and decrypt messages on both sides. The chosen cipher for encryption/decryption is AES with GCM block cipher mode. See ```message.py``` for specific details on how messages are formulated and encrypted/decryped.
 
 ## Closing remarks
 
