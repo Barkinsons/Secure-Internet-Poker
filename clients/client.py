@@ -21,6 +21,7 @@ from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.Hash import SHA1
 from Cryptodome.Random import get_random_bytes
 
+from random import randint
 from pathlib import Path
 import ipaddress
 import socket
@@ -30,6 +31,7 @@ import sys
 sys.path.append('..')
 from mydigitalsignature import DigitalSignature as DS
 from message import Message as M
+
 
 class bcolors:
     '''
@@ -82,6 +84,9 @@ class Client:
         send_hello():
             Send hello message to server
 
+        challenge_response()
+            Do challenge response protocol
+
         get_cards_and_result():
             Get and validate cards and result from server
 
@@ -126,7 +131,7 @@ class Client:
         
         Steps:
             1. Connect to the server
-            2. Send hello message
+            2. Send hello message and perform challenge response
             3. Get player hand
             4. Chose card from hand
             5. Send card to server
@@ -142,17 +147,23 @@ class Client:
         except ConnectionRefusedError:
             self.close_client(f'{bcolors.FAIL}FAILED TO CONNECT!{bcolors.ENDC}')
 
-        print(f'{bcolors.OKGREEN}Success!!!{bcolors.ENDC}\n')
+        print('Connected...\n')
 
         ####################################################################################################
 
-        ### SEND HELLO MESSAGE #############################################################################
+        ### SEND HELLO MESSAGE AND PERFORM CHALLENGE RESPONSE ##############################################
         self.send_hello()
-
+        self.challenge_response()
+        print(f'{bcolors.OKGREEN}Success!!!{bcolors.ENDC}\n')
+        
         ####################################################################################################
 
         ### GET PLAYER HAND ################################################################################
-        self.hand = list(M.get(self.server_socket, self.session_key, self.server_key, 'I I I', 12))
+        try: self.hand = list(M.get(self.server_socket, self.session_key, self.server_key, 'I I I', 12))
+        except struct.error:
+            self.close_client(f'{bcolors.FAIL}Error: Could not get player hand...{bcolors.ENDC}\
+                              \nPlayer{self.player_num} may have already joined...\
+                              \nEnsure correct parameters before trying again.')
 
         ####################################################################################################
 
@@ -174,7 +185,6 @@ class Client:
 
                     # Get card input
                     card = input('Choice: ')
-                    print()
 
                     if not card.isnumeric() or int(card) not in self.hand:
                         print(f'{card} not in hand, please try again...\n')
@@ -193,6 +203,9 @@ class Client:
                 except socket.error:
                     self.close_client(f'{bcolors.FAIL}Error: could not send card{bcolors.ENDC}')
 
+                # print waiting message
+                print('Waiting for player1...\n') if self.player_num == 2 else print('Waiting for player2...\n') 
+
                 ############################################################################################
 
             # Round 3
@@ -207,7 +220,7 @@ class Client:
             # Last round
             if i == 2:
                 print(f'Your last card: {self.card}')
-                print(f"Opponent's last card: {opponent_card}")
+                print(f"Their last card: {opponent_card}")
 
             # First two rounds
             else:
@@ -273,6 +286,29 @@ class Client:
 
         except ConnectionError:
             self.close_client(f'{bcolors.WARNING}Error: Could not send data!!!{bcolors.ENDC}')
+
+    def challenge_response(self):
+        '''
+        Do challenge response protocol
+        
+        Generate and send a nonce. Receive f(nonce) from server and validate it. f(x) = x ** 2
+        '''
+        # Generate nonce
+        nonce = randint(0, 65535)
+
+        # Try to send nonce to server
+        try: M.send(self.server_socket, self.session_key, self.private_key, 'I', nonce)
+        except socket.error:
+            self.close_client(f'{bcolors.FAIL}Error: Could not send nonce to server{bcolors.ENDC}')
+
+        # Try and get nonce ** 2 from server
+        try: f_nonce = M.get(self.server_socket, self.session_key, self.server_key, 'I', 4)[0]
+        except socket.error:
+            self.close_client(f'{bcolors.FAIL}Error: Could not get f(nonce) from server{bcolors.ENDC}')
+
+        # Ensure matching values
+        if nonce ** 2 != f_nonce:
+            self.close_client(f'{bcolors.FAIL}Error: f(nonce) does not match{bcolors.ENDC}')
 
     def get_cards_and_result(self) -> tuple[3]:
         '''
