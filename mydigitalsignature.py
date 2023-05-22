@@ -18,7 +18,7 @@
 
 from Cryptodome.Signature import pkcs1_15, DSS
 from Cryptodome.PublicKey import RSA, DSA
-from Cryptodome.Hash import SHA1
+from Cryptodome.Hash import SHA256
 
 class DigitalSignature:
     '''
@@ -32,15 +32,15 @@ class DigitalSignature:
             Verifies the digital signature given hash and asymmetric key
     '''
 
-    def generate_digital_signature(msg_hash: SHA1.SHA1Hash, key: RSA.RsaKey | DSA.DsaKey):
+    def generate_digital_signature(msg_hash: SHA256.SHA256Hash, key: RSA.RsaKey | DSA.DsaKey) -> bytes:
         '''
         Generates the digital signature for some hash given asymmetric key
 
-        This function takes a SHA1Hash and an asymmetric key and generates 
+        This function takes a SHA256Hash and an asymmetric key and generates 
         a digital signature according to the key type
         
         Parameters -
-            msg_hash: the SHA1Hash object
+            msg_hash: the SHA256Hash object
             key: the asymmetric key used to generate the digital signature
 
         Returns - 
@@ -62,11 +62,11 @@ class DigitalSignature:
         else:
             raise TypeError(f'key type not supported: ({type(key)})')
 
-    def verify_digital_signature(msg_hash: SHA1.SHA1Hash, signature: bytes, key: RSA.RsaKey | DSA.DsaKey):
+    def verify_digital_signature(msg_hash: SHA256.SHA256Hash, signature: bytes, key: RSA.RsaKey | DSA.DsaKey):
         '''
         Verifies the digital signature given hash and asymmetric key
 
-        This function attempts to verify a digital signature using the SHA1Hash
+        This function attempts to verify a digital signature using the SHA256Hash
         and an asymmetric key according to the key type
 
         Parameters -
