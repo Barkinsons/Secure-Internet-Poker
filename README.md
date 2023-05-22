@@ -57,13 +57,13 @@ This game is made secure through both Public Key Cryptography and Symmetric Cryp
 
 ### Public Key Cryptography
 
-The **Server** uses 2048-bit RSA keys to provide digital signature. Digital Signatures are generated using SHA1 hashes. See ```mydigitalsignature.py``` for the generation and verification of digital signatures. Additionally, the server uses its RSA key for securely exchanging session keys between client and server. See ```Client.send_hello()``` in client.py and ```Server.accept_players()``` in server.py for specific detail on session key exhange.
+The **Server** uses 2048-bit RSA keys to provide digital signature. Digital Signatures are generated using SHA256 hashes. See ```mydigitalsignature.py``` for the generation and verification of digital signatures. Additionally, the server uses its RSA key for securely exchanging session keys between client and server. Before the session key is formally used a challenge response is performed. See ```Client.send_hello()``` and ```Client.challenge_response()``` in client.py and ```Server.accept_players()``` in server.py for specific details on session key exhange.
   
-**Clients** have the choice of either using 2048-bit RSA or 2048-bit DSA keys for digital signing. Again, see ```mydigitalsignature.py``` for more details on digital signing.
+**Clients** have the choice of either using a 2048-bit RSA or DSA key for digital signing. Again, see ```mydigitalsignature.py``` for more details on digital signing.
 
 ### Symmetric Cryptography
 
-After key exchange between the client and server, the 128-bit session key is used to both encrypt and decrypt messages on both sides. The chosen cipher for encryption/decryption is AES with GCM block cipher mode. See ```message.py``` for specific details on how messages are formulated and encrypted/decryped.
+After key exchange between the client and server, the 128-bit session key is used to both encrypt and decrypt messages on both sides. Before The chosen cipher for encryption/decryption is AES with GCM block cipher mode. See ```message.py``` for specific details on how messages are formulated and encrypted/decryped.
 
 ## Closing remarks
 
