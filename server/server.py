@@ -16,6 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>. #
 ##########################################################################
 
+from collections import Counter
 from random import randint
 from pathlib import Path
 import ipaddress
@@ -132,6 +133,23 @@ class Server:
         # Create player hands
         player1_hand = [randint(1, 15) for _ in range(3)]
         player2_hand = [randint(1, 15) for _ in range(3)]
+        count = Counter(player1_hand + player2_hand)
+
+        # Check for 5 or more identical card numbers
+        cont = True
+        while cont:
+            # For every value in count
+            for v in count.values():
+                # If count > 4
+                if v > 4:
+                    # Regenerate hands and try again
+                    player1_hand = [randint(1, 15) for _ in range(3)]
+                    player2_hand = [randint(1, 15) for _ in range(3)]
+                    count = Counter(player1_hand + player2_hand)
+                    break
+                else:
+                    cont = False
+                    break
 
         # Distribute player hands
         try:
@@ -155,6 +173,9 @@ class Server:
             # Rounds 1 and 2
             if i < 2:
                 try:
+                    # Print waiting message
+                    print('Waiting for players to choose...\n')
+
                     # Get player choices
                     player1_card = M.get(player1_conn, player1_session_key, player1_public_key, 'I', 4)[0]
                     player2_card = M.get(player2_conn, player2_session_key, player2_public_key, 'I', 4)[0]
@@ -226,7 +247,7 @@ class Server:
         elif self.player1_score > 0:
             print(f'{bcolors.OKGREEN}{bcolors.BOLD}{bcolors.UNDERLINE}PLAYER1 WINS!!!{bcolors.ENDC}\n')
         else:
-            print(f"{bcolors.OKCYAN}{bcolors.BOLD}{bcolors.UNDERLINE}THE GAME IS A DRAW!{bcolors.ENDC}\n")
+            print(f"{bcolors.OKCYAN}{bcolors.BOLD}{bcolors.UNDERLINE}THE GAME IS A TIE!{bcolors.ENDC}\n")
 
         ####################################################################################################
 
@@ -235,6 +256,7 @@ class Server:
 
         ####################################################################################################
 
+    
     def accept_players(self) -> None:
         '''Accept client connections until player1 and player2 connect'''
 
@@ -267,6 +289,22 @@ class Server:
                 print('Closing client connection...\n')
                 conn.close()
                 continue
+
+            ### Challenge response ###############################################################
+            # Try and get nonce
+            try: n = M.get(conn, session_key, public_key, 'I', 4)[0]
+            except socket.error:
+                print(f'{bcolors.WARNING}Could not get client nonce{bcolors.ENDC}')
+                conn.close()
+                continue
+
+            # Try to send f(n) where f(x) = x ** 2
+            try: M.send(conn, session_key, self.private_key, 'I', n**2)
+            except socket.error:
+                print(f'{bcolors.WARNING}Could not send f(n){bcolors.ENDC}')
+                conn.close()
+                continue
+            ######################################################################################
 
             # Add client to client dictionary
             if identity not in self.clients:
